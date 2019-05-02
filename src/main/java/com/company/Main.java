@@ -46,6 +46,13 @@ public class Main {
             response.status(400);
             return null;
         }
+
+        boolean created = database.register(username, password, email);
+
+        if (created) {
+            Key key = TokenUtils.createKeyFromString(SERVER_KEY);
+            return TokenUtils.createToken(username, key);
+        }
         return null;
     }
 
