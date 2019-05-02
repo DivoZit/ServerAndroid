@@ -43,7 +43,8 @@ public class Main {
         if (username == null
                 || password == null
                 || email == null) {
-
+            response.status(400);
+            return null;
         }
         return null;
     }
