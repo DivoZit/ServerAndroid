@@ -37,7 +37,7 @@ public class Main {
 
     private static Object register(Database database, Request request, Response response) {
         String username = request.queryParams("username");
-        String password = request.queryParams("passowrd");
+        String password = request.queryParams("password");
         String email = request.queryParams("email");
 
         if (username == null
@@ -53,6 +53,8 @@ public class Main {
             Key key = TokenUtils.createKeyFromString(SERVER_KEY);
             return TokenUtils.createToken(username, key);
         }
+
+        response.status(500);
         return null;
     }
 

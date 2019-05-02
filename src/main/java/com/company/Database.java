@@ -88,8 +88,8 @@ public class Database {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, username);
-            statement.setString(2, password);
-            statement.setString(3, email);
+            statement.setString(2, email);
+            statement.setString(3, password);
 
             int rowsAffected = statement.executeUpdate();
 
