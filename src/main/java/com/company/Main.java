@@ -8,9 +8,12 @@ import org.simplejavamail.mailer.config.TransportStrategy;
 import spark.Request;
 import spark.Response;
 import spark.Spark;
+import spark.utils.IOUtils;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import javax.servlet.MultipartConfigElement;
+import javax.servlet.ServletException;
+import javax.servlet.http.Part;
+import java.io.*;
 import java.security.Key;
 import java.util.Scanner;
 
@@ -31,7 +34,23 @@ public class Main {
         Spark.get("/getUsers", (request, response) -> getUsers(database));
         Spark.post("/createUser", (request, response) -> createUser(database, request));
         Spark.post("/passwordReminder", (request, response) -> remindPassword(database, response, request));
+        Spark.put("/uploadImage", (request, response) -> uploadImage(request));
 
+
+    }
+
+    private static Object uploadImage(Request req) throws IOException, ServletException {
+        req.attribute("org.eclipse.jetty.multipartConfig", new MultipartConfigElement("files/"));
+        System.out.println("Upload method called");
+        Part filePart = req.raw().getPart("imageParameterName");
+        try (InputStream inputStream = filePart.getInputStream()) {
+            OutputStream outputStream = new FileOutputStream("files/" + filePart.getSubmittedFileName());
+            IOUtils.copy(inputStream, outputStream);
+            outputStream.close();
+        } catch (Exception e) {
+            return "Error: " + e.getMessage();
+        }
+        return "File uploaded and saved.";
     }
 
     private static Object remindPassword(Database database, Response response, Request request) {
@@ -42,9 +61,9 @@ public class Main {
             response.status(400);
             return null;
         }
-        if (database.isEmailRegistered(email)) {
-            sendEmail();
-            System.out.println("Email sent");
+        String password = database.getPasswordForEmail(email);
+        if (password != null) {
+            sendEmail(email, password);
         } else {
             response.status(404);
             return null;
@@ -52,12 +71,12 @@ public class Main {
         return "Email successfully sent";
     }
 
-    private static void sendEmail() {
+    private static void sendEmail(String recipient, String password) {
         Email emailMailer = EmailBuilder.startingBlank()
                 .from("Serveriukas", "tas@kentas.lt")
-                .to("Deividas", "deizitkus@gmail.com")
+                .to(recipient)
                 .withSubject("Serveriukas password reminder")
-                .withPlainText("Login password reminder. Your pasword is: ")
+                .withPlainText("Login password reminder. Your pasword is: " + password)
                 .buildEmail();
         MailerBuilder
                 .withDebugLogging(true)
