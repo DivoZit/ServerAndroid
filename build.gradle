@@ -19,4 +19,6 @@ dependencies {
     compile 'io.jsonwebtoken:jjwt-api:0.10.5'
     runtime 'io.jsonwebtoken:jjwt-impl:0.10.5'
     compile 'io.jsonwebtoken:jjwt-jackson:0.10.5'
+    compile group: 'org.simplejavamail', name: 'simple-java-mail', version: '5.1.6'
+
 }

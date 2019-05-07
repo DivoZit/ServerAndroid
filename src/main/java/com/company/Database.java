@@ -99,5 +99,26 @@ public class Database {
         }
         return false;
     }
+
+    public boolean isEmailRegistered(String email) {
+        String query = "SELECT * FROM vartotojai WHERE email=?";
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setString(1, email);
+            ResultSet results = preparedStatement.executeQuery();
+
+            int counter = 0;
+            while (results.next()) {
+                counter++;
+            }
+
+            return counter == 1;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
 }
 

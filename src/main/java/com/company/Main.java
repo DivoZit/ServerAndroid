@@ -1,6 +1,10 @@
 package com.company;
 
 import com.company.utils.TokenUtils;
+import org.simplejavamail.email.Email;
+import org.simplejavamail.email.EmailBuilder;
+import org.simplejavamail.mailer.MailerBuilder;
+import org.simplejavamail.mailer.config.TransportStrategy;
 import spark.Request;
 import spark.Response;
 import spark.Spark;
@@ -20,19 +24,47 @@ public class Main {
         Spark.port(7575);
 
         Spark.post("/login", (request, response) -> login(database, request, response));
-
         Spark.post("/register", ((request, response) -> register(database, request, response)));
-
         Spark.get("/top_sekret", Main::topSekret);
-
         Spark.get("/json", ((request, response) -> readFromFile("duomenys.json")));
-
         Spark.get("/home", (request, response) -> readFromFile("index.html"));
-
         Spark.get("/getUsers", (request, response) -> getUsers(database));
-
         Spark.post("/createUser", (request, response) -> createUser(database, request));
+        Spark.post("/passwordReminder", (request, response) -> remindPassword(database, response, request));
 
+    }
+
+    private static Object remindPassword(Database database, Response response, Request request) {
+        String email = request.queryParams("email");
+        System.out.println("Email: " + email);
+
+        if (email == null) {
+            response.status(400);
+            return null;
+        }
+        if (database.isEmailRegistered(email)) {
+            sendEmail();
+            System.out.println("Email sent");
+        } else {
+            response.status(404);
+            return null;
+        }
+        return "Email successfully sent";
+    }
+
+    private static void sendEmail() {
+        Email emailMailer = EmailBuilder.startingBlank()
+                .from("Serveriukas", "tas@kentas.lt")
+                .to("Deividas", "deizitkus@gmail.com")
+                .withSubject("Serveriukas password reminder")
+                .withPlainText("Login password reminder. Your pasword is: ")
+                .buildEmail();
+        MailerBuilder
+                .withDebugLogging(true)
+                .withTransportStrategy(TransportStrategy.SMTPS)
+                .withSMTPServer("muskatas.serveriai.lt", 465, "tas@kentas.lt", "kaunascoding123")
+                .buildMailer()
+                .sendMail(emailMailer);
     }
 
     private static Object register(Database database, Request request, Response response) {
