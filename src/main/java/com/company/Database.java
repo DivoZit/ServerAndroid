@@ -1,12 +1,15 @@
 package com.company;
 
 
+import com.company.models.Vartotojas;
 import org.apache.commons.dbcp.BasicDataSource;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Database {
 
@@ -59,7 +62,8 @@ public class Database {
         }
     }
 
-    public String selectUsers() {
+    public List<Vartotojas> gautiVartotojus() {
+        List<Vartotojas> vartotojai = new ArrayList<>();
         String query = "SELECT * FROM vartotojai";
         String turinys = "";
 
@@ -68,17 +72,20 @@ public class Database {
              ResultSet resultSet = statement.executeQuery()) {
 
             while (resultSet.next()) {
-                int id = resultSet.getInt("id");
-                String vardas = resultSet.getString("vardas");
-                String pavarde = resultSet.getString("pavarde");
-                int amzius = resultSet.getInt("amzius");
-                turinys = turinys + ("ID: " + id + ", Vardas: " + vardas
-                        + ", Pavarde: " + pavarde + ", amzius: " + amzius + "<br>");
+                Vartotojas vartotojas = new Vartotojas();
+                vartotojas.setId(resultSet.getInt("id"));
+                vartotojas.setVardas(resultSet.getString("vardas"));
+                vartotojas.setPavarde(resultSet.getString("pavarde"));
+                vartotojas.setAmzius(resultSet.getInt("amzius"));
+                vartotojas.setUsername(resultSet.getString("username"));
+                vartotojas.setPassword(resultSet.getString("password"));
+                vartotojas.setEmail(resultSet.getString("email"));
+                vartotojai.add(vartotojas);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return turinys;
+        return vartotojai;
     }
 
 

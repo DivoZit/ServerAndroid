@@ -1,5 +1,6 @@
 package com.company;
 
+import com.company.models.Vartotojas;
 import com.company.utils.TokenUtils;
 import org.simplejavamail.email.Email;
 import org.simplejavamail.email.EmailBuilder;
@@ -15,6 +16,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.Part;
 import java.io.*;
 import java.security.Key;
+import java.util.List;
 import java.util.Scanner;
 
 public class Main {
@@ -31,10 +33,11 @@ public class Main {
         Spark.get("/top_sekret", Main::topSekret);
         Spark.get("/json", ((request, response) -> readFromFile("duomenys.json")));
         Spark.get("/home", (request, response) -> readFromFile("index.html"));
-        Spark.get("/getUsers", (request, response) -> getUsers(database));
+        Spark.get("/getUsers", (request, response) -> gautiVartotojus(database));
         Spark.post("/createUser", (request, response) -> createUser(database, request));
         Spark.post("/passwordReminder", (request, response) -> remindPassword(database, response, request));
         Spark.put("/uploadImage", (request, response) -> uploadImage(request));
+        Spark.put("/gautiVartotojus", (request, response) -> gautiVartotojus(database));
 
 
     }
@@ -118,10 +121,14 @@ public class Main {
         return "Vartotojas sukurtas: " + vardas + " " + pavarde + " , " + amzius + " metai.";
     }
 
-    private static Object getUsers(Database database) throws FileNotFoundException {
-        readFromFile("sarasas.html");
+    private static Object gautiVartotojus(Database database) throws FileNotFoundException {
+//        readFromFile("sarasas.html");
         String turinys = readFromFile("sarasas.html");
-        String duombazesTurinys = database.selectUsers(); //pasiimti duomenis is DB
+        List<Vartotojas> vartotojai = database.gautiVartotojus(); //pasiimti duomenis is DB
+        String duombazesTurinys = "";
+        for (Vartotojas vartotojas : vartotojai) {
+            duombazesTurinys += vartotojas.toString() + "\n";
+        }
         turinys = turinys.replace("{TURINYS}", duombazesTurinys);
         return turinys;
     }
